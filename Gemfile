@@ -19,8 +19,8 @@ source 'https://rubygems.org'
  gem 'jquery-rails'
  gem 'turbolinks'
  gem 'bootstrap-sass'
+ gem 'devise', "~> 3.2"
  gem 'figaro'
- gem 'devise'
  gem "pundit"
 
  group :development, :test do
