@@ -1,5 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it 'responds to role' do
+    expect(wiki).to respond_to(:role)
+  end
+
+
 end
