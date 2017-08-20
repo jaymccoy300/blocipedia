@@ -5,6 +5,8 @@ RSpec.describe WikisController, type: :controller do
   let(:my_wiki) { Wiki.create!(title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false) }
 
   describe 'GET index' do
+    login_user
+
     it 'returns http success' do
       get :index
       expect(response).to have_http_status(:success)
@@ -17,6 +19,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'GET new' do
+    login_user
     it 'returns http success' do
       get :new
       expect(response).to have_http_status(:success)
@@ -34,6 +37,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'POST create' do
+    login_user
     it 'increases the number of Wiki by 1' do
       expect { post :create, wiki: { title: RandomData.random_sentence, body: RandomData.random_paragraph, private: false } }.to change(Wiki, :count).by(1)
     end
@@ -50,6 +54,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'GET show' do
+    login_user
     it 'returns http success' do
       get :show, id: my_wiki.id
       expect(response).to have_http_status(:success)
@@ -67,6 +72,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'GET edit' do
+    login_user
     it 'returns http success' do
       get :edit, id: my_wiki.id
       expect(response).to have_http_status(:success)
@@ -89,6 +95,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'PUT update' do
+    login_user
     it 'updates wiki with expected attributes' do
       new_title = RandomData.random_sentence
       new_body = RandomData.random_paragraph
@@ -110,6 +117,7 @@ RSpec.describe WikisController, type: :controller do
   end
 
   describe 'DELETE destroy' do
+    login_admin
     it 'deletes the wiki' do
       delete :destroy, id: my_wiki.id
       count = Wiki.where(id: my_wiki.id).size
