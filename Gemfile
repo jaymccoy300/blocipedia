@@ -19,10 +19,11 @@ source 'https://rubygems.org'
  gem 'jquery-rails'
  gem 'turbolinks'
  gem 'bootstrap-sass'
- gem 'devise', "~> 3.2"
+ gem 'devise'
  gem 'figaro'
  gem "pundit"
  gem 'stripe'
+ gem 'ffaker'
 
  group :development, :test do
    gem 'byebug'
