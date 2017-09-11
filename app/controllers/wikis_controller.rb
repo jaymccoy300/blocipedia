@@ -1,16 +1,22 @@
 class WikisController < ApplicationController
   def index
-    @wikis = Wiki.visible_to(current_user)
+    @wikis = policy_scope(Wiki)
   end
 
   def show
     @wiki = Wiki.find(params[:id])
-    unless (@wiki.private == false) || (@wiki.private == nil) || current_user.premium? || current_user.admin?
-      flash[:alert] = "You Must be a Premium User to Browse Private Wikis."
-      if current_user
-        redirect_to new_charge_path
-      else
-        redirect_to new_user_registration_path
+    if current_user.present?
+      collaborators = []
+      @wiki.collaborators.each do |collaborator|
+        collaborators << collaborator.email
+      end
+      unless (@wiki.private == false) || (@wiki.private == nil) || current_user.premium? || current_user.admin?
+        flash[:alert] = "You Must be a Premium User to Browse Private Wikis."
+        if current_user
+          redirect_to new_charge_path
+        else
+          redirect_to new_user_registration_path
+        end
       end
     end
   end
@@ -20,20 +26,12 @@ class WikisController < ApplicationController
     # authorize @wiki
   end
 
-  def edit
-    @wiki = Wiki.find(params[:id])
-    authorize @wiki
-  end
-
   def create
-    @wiki = Wiki.new
-    @wiki.title = params[:wiki][:title]
-    @wiki.body = params[:wiki][:body]
-    @wiki.private = params[:wiki][:private]
-    @wiki.user = current_user
+    @wiki = Wiki.new(wiki_params)
     # authorize @wiki
 
     if @wiki.save
+      @wiki.collaborators = Collaborator.update_collaborators(params[:wiki][:collaborators])
       flash[:notice] = 'Wiki was Saved!.'
       redirect_to @wiki
     else
@@ -42,15 +40,21 @@ class WikisController < ApplicationController
     end
   end
 
-  def update
+  def edit
     @wiki = Wiki.find(params[:id])
-    @wiki.title = params[:wiki][:title]
-    @wiki.body = params[:wiki][:body]
-    @wiki.private = params[:wiki][:private]
+    authorize @wiki
+  end
+
+  def update
+    @wiki.assign_attributes(wiki_params)
     authorize @wiki
 
-    if @wiki.save
+    if @wiki.save && (@wiki.user == current_user || current_user.admin?)
+      @wiki.collaborators = Collaborator.update_collaborators(params[:wiki][:collaborators])
       flash[:notice] = 'Wiki Has Been Updated!.'
+      redirect_to @wiki
+    elsif @wiki.save
+      flash[:notice] = "Wiki was updated successfully."
       redirect_to @wiki
     else
       flash.now[:alert] = 'There was an Error Updating Your Wiki. Please Try Again Later'
@@ -69,5 +73,11 @@ class WikisController < ApplicationController
       flash.now[:alert] = "There was an error deleting the wiki."
       render :show
     end
+  end
+
+  private
+
+  def wiki_params
+    params.require(:wiki).permit(:title, :body, :private)
   end
 end

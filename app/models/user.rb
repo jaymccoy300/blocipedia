@@ -3,9 +3,22 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
-  has_many :wikis
+  has_many :wikis, dependent: :destroy
+  has_many :collaborators
 
-  def going_public
-    self.wikis.each { |wiki| puts wiki.publicize}
+
+  enum role: [:standard, :premium, :admin]
+
+  def self.going_public(user)
+    @wikis = user.wikis.where(private: true)
+    @wikis.each do |wiki|
+      wiki.update_attribute(:private, false)
+    end
+  end
+
+  private
+
+  def initialize_role
+    self.role ||= :standard
   end
 end

@@ -1,47 +1,52 @@
 require 'random_data'
 
 5.times do
-  User.create!(
-    email: RandomData.random_email,
-    password: 'standardpassword',
-    standard: true,
-    premium: false,
-    admin: false
-  )
+    user= User.new(
+        email: RandomData.random_email,
+        password: "password",
+        role: "standard"
+        )
+    user.skip_confirmation!
+    user.save!
 end
 
-4.times do
-  User.create!(
-    email: RandomData.random_email,
-    password: 'premiumpassword',
-    standard: false,
-    premium: true,
-    admin: false
-  )
-end
+standard_user = User.new(
+    email: "standard@gmail.com",
+    password: "password",
+    role: "standard"
+    )
+standard_user.skip_confirmation!
+standard_user.save!
 
-3.times do
-  User.create!(
-    email: RandomData.random_email,
-    password: 'adminpassword',
-    standard: false,
-    premium: false,
-    admin: true
-  )
-end
+premium_user = User.new(
+    email: "premium@gmail.com",
+    password: "helloworld",
+    role: "premium"
+    )
+premium_user.skip_confirmation!
+premium_user.save!
+
+admin_user = User.new(
+    email: "admin@gmail.com",
+    password: "helloworld",
+    role: "admin"
+    )
+admin_user.skip_confirmation!
+admin_user.save!
 
 users = User.all
 
 10.times do
-  Wiki.create!(
-    title: RandomData.random_sentence,
-    body: RandomData.random_paragraph,
-    private: false
-  )
+    Wiki.create!(
+        title: RandomData.random_sentence,
+        body: RandomData.random_paragraph,
+        private: false,
+        user: User.last
+        )
 end
 
 wikis = Wiki.all
 
-puts 'Seed finished'
+puts "Seed finished"
 puts "#{users.count} users created"
 puts "#{wikis.count} wikis created"
